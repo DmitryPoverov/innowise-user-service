@@ -31,6 +31,7 @@ public interface CardRepository extends JpaRepository<Card, Long> {
         return save(card);
     }
 
+
     /**
      * {@link JpaRepository} -> {@link CrudRepository} already has such a method {@code findById()}.<br><br>
      * My custom implementation:<br>
@@ -51,6 +52,7 @@ public interface CardRepository extends JpaRepository<Card, Long> {
      */
     Optional<Card> findCardById(Long id);
 
+
     /**
      * {@link JpaRepository} -> {@link CrudRepository} already has such a method {@code findAllById()}.<br><br>
      * My custom implementation:<br>
@@ -70,6 +72,7 @@ public interface CardRepository extends JpaRepository<Card, Long> {
      * @return a list of matching {@link Card} entities, possibly empty if none match
      */
     List<Card> findAllByIdIn(List<Long> ids);
+
 
     /**
      * My custom implementation with native SQL:<br>
@@ -93,6 +96,7 @@ public interface CardRepository extends JpaRepository<Card, Long> {
                              @Param("number") String number,
                              @Param("holder") String holder,
                              @Param("expirationDate") LocalDate expirationDate);
+
 
     /**
      * {@link JpaRepository} -> {@link CrudRepository} already has such a method {@code deleteById()},
