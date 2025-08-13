@@ -1,19 +1,13 @@
 package by.innowise.poverov.entity;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 import java.io.Serial;
@@ -23,12 +17,14 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Builder
-@Data
 @Table(name = "users")
+@Builder
+@Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@EqualsAndHashCode(of = "email")
+@EqualsAndHashCode(of = "id")
+@ToString
 public class User implements Serializable {
 
     @Id
@@ -38,10 +34,12 @@ public class User implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Column(nullable = false)
+    @Column(nullable = false,
+            length = 64)
     private String name;
 
-    @Column(nullable = false)
+    @Column(nullable = false,
+            length = 64)
     private String surname;
 
     @Column(nullable = false)
@@ -51,7 +49,10 @@ public class User implements Serializable {
             unique = true)
     private String email;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user",
+               cascade = CascadeType.ALL,
+               fetch = FetchType.LAZY,
+               orphanRemoval = true)
     @ToString.Exclude
     @Builder.Default
     private Set<Card> cards = new HashSet<>();
