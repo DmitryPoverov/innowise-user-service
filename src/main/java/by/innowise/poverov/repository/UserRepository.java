@@ -125,11 +125,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * My custom implementation: <br>
      * 1. with JPQL:
      * <pre>
-     * {@code @Modifying @Query("DELETE FROM User u WHERE u.id=:id")}
+     * {@code @Query("DELETE FROM User u WHERE u.id=:id")}
      * </pre>
      * 2. with SQL:
      * <pre>
-     * {@code @Modifying @Query(value = "DELETE FROM users WHERE id=:id", nativeQuery = true)
+     * {@code @Query(value = "DELETE FROM users WHERE id=:id", nativeQuery = true)
      * int deleteUserById(@Param("id") Long id);}
      * </pre>
      *
@@ -137,5 +137,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * This operation is transactional to ensure data integrity.
      * @param id the ID of the user to delete, must not be {@code null}
      */
-    void deleteUserById(Long id);
+    @Modifying
+    int deleteUserById(Long id);
 }

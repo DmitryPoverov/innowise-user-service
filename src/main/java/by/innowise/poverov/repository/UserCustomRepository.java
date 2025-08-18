@@ -8,7 +8,7 @@ import by.innowise.poverov.entity.User;
  * This interface defines a method to update a User by its ID.
  * The implementation will handle the update logic.
  */
-public interface CustomUserInterface {
+public interface UserCustomRepository {
 
     /**
      * Update a user by its ID.

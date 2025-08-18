@@ -6,7 +6,6 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -90,7 +89,6 @@ public interface CardRepository extends JpaRepository<Card, Long> {
      * @return the number of cards updated (should be 0 or 1)
      */
     @Modifying(clearAutomatically = true)
-    @Transactional
     @Query("UPDATE Card c SET c.number=:number, c.holder=:holder, c.expirationDate=:expirationDate WHERE c.id=:id")
     int updateCardFieldsById(@Param("id") Long id,
                              @Param("number") String number,
@@ -117,6 +115,5 @@ public interface CardRepository extends JpaRepository<Card, Long> {
      * @param id the ID of the card to delete, must not be {@code null}
      */
     @Modifying
-    @Transactional
-    void deleteCardById(Long id);
+    int deleteCardById(Long id);
 }
