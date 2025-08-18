@@ -139,4 +139,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
      */
     @Modifying
     int deleteUserById(Long id);
+
+    boolean existsByEmail(String email);
 }

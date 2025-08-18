@@ -9,8 +9,8 @@ public interface UserService {
 
     UserReadDto saveUser(UserWriteDto dto);
     UserReadDto findUserById(Long id);
-    List<UserReadDto> findAllByIdIn(List<Long> ids);
+    List<UserReadDto> findAllUsersById(List<Long> ids);
     UserReadDto findUserByEmail(String email);
     UserReadDto updateUserById(Long id, UserWriteDto dto);
-    int deleteUserById(Long id);
+    UserReadDto deleteUserById(Long id);
 }

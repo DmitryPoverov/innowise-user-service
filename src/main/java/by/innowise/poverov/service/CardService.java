@@ -9,7 +9,7 @@ public interface CardService {
 
     CardReadDto saveCard(CardWriteDto dto);
     CardReadDto findCardById(Long id);
-    CardReadDto findAllCardByIdIn(List<Long> ids);
-    int deleteCardById(Long id);
-    CardReadDto updateCard(CardWriteDto dto);
+    List<CardReadDto> findAllCardByIds(List<Long> ids);
+    CardReadDto updateCard(Long id, CardWriteDto dto);
+    void deleteCardById(Long id);
 }

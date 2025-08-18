@@ -116,4 +116,6 @@ public interface CardRepository extends JpaRepository<Card, Long> {
      */
     @Modifying
     int deleteCardById(Long id);
+
+    boolean existsByNumber(String number);
 }
