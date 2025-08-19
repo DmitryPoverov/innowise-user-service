@@ -80,10 +80,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserReadDto deleteUserById(Long id) {
-        User userToDelete = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundCustomException(id));
-        userRepository.delete(userToDelete);
-        return userMapper.toUserReadDto(userToDelete);
+    public void deleteUserById(Long id) {
+        if (userRepository.deleteUserById(id) == 0) {
+            throw new EntityNotFoundCustomException(id);
+        }
     }
 }
