@@ -11,5 +11,5 @@ public interface CardService {
     CardReadDto findCardById(Long id);
     List<CardReadDto> findAllCardsByIds(List<Long> ids);
     CardReadDto updateCard(Long id, CardWriteDto dto);
-    CardReadDto deleteCardById(Long id);
+    void deleteCardById(Long id);
 }

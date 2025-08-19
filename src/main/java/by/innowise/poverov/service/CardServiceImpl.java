@@ -74,11 +74,9 @@ public class CardServiceImpl implements CardService {
 
     @Override
     @Transactional
-    public CardReadDto deleteCardById(Long id) {
-        Card cardToDelete = cardRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundCustomException(id));
-
-        cardRepository.delete(cardToDelete);
-        return cardMapper.toCardReadDto(cardToDelete);
+    public void deleteCardById(Long id) {
+        if (cardRepository.existsById(id) && cardRepository.deleteCardById(id) == 0) {
+            throw new EntityNotFoundCustomException(id);
+        }
     }
 }

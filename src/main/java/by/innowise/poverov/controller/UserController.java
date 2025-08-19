@@ -4,6 +4,7 @@ import by.innowise.poverov.dto.UserReadDto;
 import by.innowise.poverov.dto.UserWriteDto;
 import by.innowise.poverov.service.UserService;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -37,14 +38,9 @@ public class UserController {
 
 // check: GET /innowise/api/v1/users?ids=1,2,3
     @GetMapping
-    public ResponseEntity<List<UserReadDto>> findAllUsersByIds(@RequestParam List<@Positive Long> ids) {
+    public ResponseEntity<List<UserReadDto>> findAllUsersByIds(@RequestParam @NotEmpty List<@Positive Long> ids) {
         List<UserReadDto> allUsersById = userService.findAllUsersById(ids);
-        if (!ids.isEmpty()) {
-            return ResponseEntity.ok(allUsersById);
-        }
-        else {
-            return ResponseEntity.badRequest().build();
-        }
+        return ResponseEntity.ok(allUsersById);
     }
 
 
@@ -63,8 +59,8 @@ public class UserController {
     }
 
 
-    @DeleteMapping("/id/{id}")
-    public ResponseEntity<UserReadDto> deleteUserById(@PathVariable @Positive Long id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUserById(@PathVariable @Positive Long id) {
         userService.deleteUserById(id);
         return ResponseEntity.noContent().build();
     }
