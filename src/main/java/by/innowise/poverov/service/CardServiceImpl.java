@@ -9,6 +9,8 @@ import by.innowise.poverov.mapper.CardMapper;
 import by.innowise.poverov.repository.CardRepository;
 import by.innowise.poverov.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,10 +25,12 @@ public class CardServiceImpl implements CardService {
     private final CardMapper cardMapper;
     private final CardRepository cardRepository;
     private final UserRepository userRepository;
+    private final CacheManager cacheManager;
 
 
     @Override
     @Transactional
+    @CacheEvict(value = "radis_cache_for_users", key = "#writeDto.userId")
     public CardReadDto saveCard(CardWriteDto writeDto) {
         Long userIdToSaveCard = writeDto.getUserId();
         if (userRepository.existsById(userIdToSaveCard)) {
@@ -63,6 +67,7 @@ public class CardServiceImpl implements CardService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "radis_cache_for_users", key = "#cardWriteDto.userId")
     public CardReadDto updateCard(Long id, CardWriteDto cardWriteDto) {
         Long userIdToUpdateCard = cardWriteDto.getUserId();
         if (userRepository.existsById(userIdToUpdateCard)) {
@@ -86,8 +91,10 @@ public class CardServiceImpl implements CardService {
     @Override
     @Transactional
     public void deleteCardById(Long id) {
-        if (cardRepository.deleteCardById(id) == 0) {
-            throw new EntityNotFoundCustomException(id);
-        }
+        Card card = cardRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundCustomException(id));
+        Long userId = card.getUser().getId();
+        Objects.requireNonNull(cacheManager.getCache("users")).evict(userId);
+        cardRepository.delete(card);
     }
 }
