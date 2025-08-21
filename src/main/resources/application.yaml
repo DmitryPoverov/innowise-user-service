@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/test_db
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: innowise-user
+    password: password
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+  data:
+    redis:
+      host: localhost
+      port: 6379
+#logging:
+#  level:
+#    liquibase: DEBUG
