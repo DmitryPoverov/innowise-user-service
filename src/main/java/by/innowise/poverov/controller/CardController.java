@@ -43,7 +43,7 @@ public class CardController {
     }
 
 
-    @GetMapping
+    @GetMapping(params = "ids")
     public ResponseEntity<List<CardReadDto>> getAllCardsByIds(@RequestParam @NotEmpty List<Long> ids) {
         List<CardReadDto> allCardsByIds = cardService.findAllCardsByIds(ids);
         return ResponseEntity.ok(allCardsByIds);

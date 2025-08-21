@@ -37,14 +37,14 @@ public class UserController {
 
 
 // check: GET /innowise/api/v1/users?ids=1,2,3
-    @GetMapping
+    @GetMapping(params = "ids")
     public ResponseEntity<List<UserReadDto>> findAllUsersByIds(@RequestParam @NotEmpty List<@Positive Long> ids) {
         List<UserReadDto> allUsersById = userService.findAllUsersById(ids);
         return ResponseEntity.ok(allUsersById);
     }
 
 
-    @GetMapping
+    @GetMapping(params = "email")
     public ResponseEntity<UserReadDto> findAllUsersByEmail(@RequestParam @Email String email) {
         UserReadDto userByEmail = userService.findUserByEmail(email);
         return ResponseEntity.ok(userByEmail);

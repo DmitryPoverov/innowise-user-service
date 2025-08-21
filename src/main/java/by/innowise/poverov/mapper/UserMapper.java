@@ -14,6 +14,8 @@ public interface UserMapper {
 
     UserReadDto toUserReadDto(User user);
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "cards",  ignore = true)
     User toUser(UserWriteDto userWriteDto);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

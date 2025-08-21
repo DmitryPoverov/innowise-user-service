@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Data
 @Builder
@@ -18,6 +19,6 @@ public class ExceptionDto {
     private LocalDateTime timestamp;
     private int status;
     private String errorReason;
-    private String message;
+    private Map<String, String> errors;
     private String path;
 }

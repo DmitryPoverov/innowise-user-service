@@ -7,6 +7,7 @@ import by.innowise.poverov.exception.EntityIsNotUniqueCustomException;
 import by.innowise.poverov.exception.EntityNotFoundCustomException;
 import by.innowise.poverov.mapper.CardMapper;
 import by.innowise.poverov.repository.CardRepository;
+import by.innowise.poverov.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,19 +22,25 @@ public class CardServiceImpl implements CardService {
 
     private final CardMapper cardMapper;
     private final CardRepository cardRepository;
+    private final UserRepository userRepository;
 
 
     @Override
     @Transactional
     public CardReadDto saveCard(CardWriteDto writeDto) {
-        String numberFromDto = writeDto.getNumber();
-        if (cardRepository.existsByNumber(numberFromDto)) {
-            throw new EntityIsNotUniqueCustomException(numberFromDto);
-        }
+        Long userIdToSaveCard = writeDto.getUserId();
+        if (userRepository.existsById(userIdToSaveCard)) {
 
-        Card card = cardMapper.toCard(writeDto);
-        Card savedCard = cardRepository.save(card);
-        return cardMapper.toCardReadDto(savedCard);
+            String numberFromDto = writeDto.getNumber();
+            if (cardRepository.existsByNumber(numberFromDto)) {
+                throw new EntityIsNotUniqueCustomException(numberFromDto);
+            }
+
+            Card card = cardMapper.toCard(writeDto);
+            Card savedCard = cardRepository.save(card);
+            return cardMapper.toCardReadDto(savedCard);
+        }
+        throw new EntityNotFoundCustomException(userIdToSaveCard);
     }
 
 
@@ -42,7 +49,7 @@ public class CardServiceImpl implements CardService {
         return cardRepository.findCardById(id)
                 .map(cardMapper::toCardReadDto)
                 .orElseThrow(() -> new EntityNotFoundCustomException(id));
-        }
+    }
 
 
     @Override
@@ -57,25 +64,29 @@ public class CardServiceImpl implements CardService {
     @Override
     @Transactional
     public CardReadDto updateCard(Long id, CardWriteDto cardWriteDto) {
-        String newNumber = cardWriteDto.getNumber();
+        Long userIdToUpdateCard = cardWriteDto.getUserId();
+        if (userRepository.existsById(userIdToUpdateCard)) {
+            String newNumber = cardWriteDto.getNumber();
 
-        Card cardFromDB = cardRepository.findCardById(id)
-                .orElseThrow(() -> new EntityNotFoundCustomException(newNumber));
+            Card cardFromDB = cardRepository.findCardById(id)
+                    .orElseThrow(() -> new EntityNotFoundCustomException(newNumber));
 
-        if (!Objects.equals(newNumber, cardFromDB.getNumber()) && cardRepository.existsByNumber(newNumber)) {
-            throw new EntityIsNotUniqueCustomException(newNumber);
+            if (!Objects.equals(newNumber, cardFromDB.getNumber()) && cardRepository.existsByNumber(newNumber)) {
+                throw new EntityIsNotUniqueCustomException(newNumber);
+            }
+
+            cardMapper.updateCardFromDto(cardWriteDto, cardFromDB);
+            cardRepository.save(cardFromDB);
+            return cardMapper.toCardReadDto(cardFromDB);
         }
-
-        cardMapper.updateCardFromDto(cardWriteDto, cardFromDB);
-        cardRepository.save(cardFromDB);
-        return cardMapper.toCardReadDto(cardFromDB);
+        throw new EntityNotFoundCustomException(userIdToUpdateCard);
     }
 
 
     @Override
     @Transactional
     public void deleteCardById(Long id) {
-        if (cardRepository.existsById(id) && cardRepository.deleteCardById(id) == 0) {
+        if (cardRepository.deleteCardById(id) == 0) {
             throw new EntityNotFoundCustomException(id);
         }
     }
