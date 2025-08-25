@@ -30,7 +30,7 @@ public class CardServiceImpl implements CardService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "radis_cache_for_users", key = "#writeDto.userId")
+    @CacheEvict(value = "redis_cache_for_users", key = "#writeDto.userId")
     public CardReadDto saveCard(CardWriteDto writeDto) {
         Long userIdToSaveCard = writeDto.getUserId();
         if (userRepository.existsById(userIdToSaveCard)) {
@@ -67,7 +67,7 @@ public class CardServiceImpl implements CardService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "radis_cache_for_users", key = "#cardWriteDto.userId")
+    @CacheEvict(value = "redis_cache_for_users", key = "#cardWriteDto.userId")
     public CardReadDto updateCard(Long id, CardWriteDto cardWriteDto) {
         Long userIdToUpdateCard = cardWriteDto.getUserId();
         if (userRepository.existsById(userIdToUpdateCard)) {

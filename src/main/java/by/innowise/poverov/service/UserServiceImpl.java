@@ -38,7 +38,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    @Cacheable(value = "radis_cache_for_users", key = "#id")
+    @Cacheable(value = "redis_cache_for_users", key = "#id")
     public UserReadDto findUserById(Long id) {
         return userRepository.findById(id)
                 .map(userMapper::toUserReadDto)
@@ -56,7 +56,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    @Cacheable(value = "radis_cache_for_users", key = "#email")
+    @Cacheable(value = "redis_cache_for_users", key = "#email")
     public UserReadDto findUserByEmail(String email) {
         return userRepository.findUserByEmail(email)
                 .map(userMapper::toUserReadDto)
@@ -66,7 +66,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "radis_cache_for_users", key = "#id")
+    @CacheEvict(value = "redis_cache_for_users", key = "#id")
     public UserReadDto updateUserById(Long id, UserWriteDto userWriteDto) {
         User userFromDB = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundCustomException(id));
@@ -85,7 +85,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "radis_cache_for_users", key = "#id")
+    @CacheEvict(value = "redis_cache_for_users", key = "#id")
     public void deleteUserById(Long id) {
         if (userRepository.deleteUserById(id) == 0) {
             throw new EntityNotFoundCustomException(id);
