@@ -2,6 +2,8 @@ package by.innowise.poverov.dto;
 
 import lombok.*;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDate;
 
 @Setter
@@ -11,9 +13,13 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
 @ToString
-public class CardReadDto {
+public class CardReadDto implements Serializable {
 
     private Long id;
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private Long userId;
     private String number;
     private String holder;
