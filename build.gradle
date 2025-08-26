@@ -1,8 +1,9 @@
 plugins {
     id 'java'
-    id 'io.freefair.lombok' version '8.14.2'
-    id 'org.springframework.boot' version '3.4.0'
-    id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+    id 'io.freefair.lombok' version '8.6'
+    id 'org.springframework.boot' version '3.5.5'
+    id 'io.spring.dependency-management' version '1.1.6'
+    id "com.github.ben-manes.versions" version "0.51.0"
 }
 
 group = 'by.innowise.poverov'
@@ -12,27 +13,37 @@ repositories {
     mavenCentral()
 }
 
+dependencyManagement {
+    dependencies {
+        dependency "org.apache.commons:commons-lang3:3.18.0"
+        dependency "org.apache.commons:commons-compress:1.26.2"
+        dependency "org.springframework:spring-webmvc:6.2.10"
+    }
+}
+
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9'
-
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.11'
 
     implementation 'org.mapstruct:mapstruct:1.6.3'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
+    compileOnly 'org.projectlombok:lombok'
 
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.liquibase:liquibase-core'
     implementation 'com.mysql:mysql-connector-j'
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
-
-    compileOnly 'org.projectlombok:lombok'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+
+    testImplementation platform("org.testcontainers:testcontainers-bom:1.21.3")
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.testcontainers:mysql'
 }
 
 test {
