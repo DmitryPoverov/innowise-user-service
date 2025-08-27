@@ -27,18 +27,69 @@ class UserServiceImplIntegrationTest extends BaseIntegrationTest {
     public static final String SURNAME_2 = "Surname_2";
     public static final String MAIL_2 = "mail2@mail.com";
     public static final String CACHE_NAME = "redis_cache_for_users";
+    public static final String NEW_NAME = "New Name";
+    public static final String NEW_SURNAME = "New Surname";
+
+    public static User user1;
+    public static User user2;
+    public static UserWriteDto userWriteDto1;
+    public static UserWriteDto userWriteDto2;
+    public static UserWriteDto userUpdateDto;
+    public static UserWriteDto userWriteDtoWithDuplicateEmail;
 
     @Autowired
     private UserServiceImpl userService;
-
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private CacheManager cacheManager;
 
+
     @BeforeEach
     void setUp() {
+        user1 = User.builder()
+                .name(NAME_1)
+                .surname(SURNAME_1)
+                .email(MAIL_1)
+                .birthDate(BIRTH_DATE)
+                .build();
+
+        user2 = User.builder()
+                .name(NAME_2)
+                .surname(SURNAME_2)
+                .email(MAIL_2)
+                .birthDate(BIRTH_DATE)
+                .build();
+
+        userWriteDto1 = UserWriteDto.builder()
+                .name(NAME_1)
+                .surname(SURNAME_1)
+                .email(MAIL_1)
+                .birthDate(BIRTH_DATE)
+                .build();
+
+        userWriteDto2 = UserWriteDto.builder()
+                .name(NAME_2)
+                .surname(SURNAME_2)
+                .email(MAIL_2)
+                .birthDate(BIRTH_DATE)
+                .build();
+
+        userUpdateDto = UserWriteDto.builder()
+                .email(MAIL_1)
+                .name(NEW_NAME)
+                .surname(NEW_SURNAME)
+                .birthDate(BIRTH_DATE)
+                .build();
+
+        userWriteDtoWithDuplicateEmail = UserWriteDto.builder()
+                .name(NAME_2)
+                .surname(SURNAME_2)
+                .email(MAIL_1)
+                .birthDate(BIRTH_DATE)
+                .build();
+
+
         Cache cache = cacheManager.getCache(CACHE_NAME);
         if (cache != null) {
             cache.clear();
@@ -48,14 +99,8 @@ class UserServiceImplIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void saveUser_shouldSaveUserToDatabase_whenEmailIsUnique() {
-        UserWriteDto writeDto = UserWriteDto.builder()
-                .name(NAME_1)
-                .surname(SURNAME_1)
-                .email(MAIL_1)
-                .birthDate(BIRTH_DATE)
-                .build();
 
-        UserReadDto savedUserDto = userService.saveUser(writeDto);
+        UserReadDto savedUserDto = userService.saveUser(userWriteDto1);
 
         Assertions.assertThat(savedUserDto.getId()).isNotNull();
         Assertions.assertThat(savedUserDto.getEmail()).isEqualTo(MAIL_1);
@@ -68,32 +113,15 @@ class UserServiceImplIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void saveUser_shouldThrowException_whenEmailIsNotUnique() {
-        userRepository.save(User.builder()
-                .name(NAME_1)
-                .surname(SURNAME_1)
-                .email(MAIL_1)
-                .birthDate(BIRTH_DATE)
-                .build());
+        userRepository.save(user1);
 
-        UserWriteDto writeDtoWithDuplicateEmail = UserWriteDto.builder()
-                .name(NAME_2)
-                .surname(SURNAME_2)
-                .email(MAIL_1)
-                .birthDate(BIRTH_DATE)
-                .build();
-
-        assertThrows(EntityIsNotUniqueCustomException.class, () -> userService.saveUser(writeDtoWithDuplicateEmail));
+        assertThrows(EntityIsNotUniqueCustomException.class, () -> userService.saveUser(userWriteDtoWithDuplicateEmail));
     }
 
 
     @Test
     void findUserById_shouldReturnUser_whenUserExists() {
-        User savedUser = userRepository.save(User.builder()
-                .name(NAME_1)
-                .surname(SURNAME_1)
-                .email(MAIL_1)
-                .birthDate(BIRTH_DATE)
-                .build());
+        User savedUser = userRepository.save(user1);
 
         Long userId = savedUser.getId();
         UserReadDto foundUserDto = userService.findUserById(userId);
@@ -114,23 +142,11 @@ class UserServiceImplIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void updateUserById_shouldUpdateUserData_whenDataIsValid() {
-        User userToUpdate = userRepository.save(User.builder()
-                .name(NAME_1)
-                .surname(SURNAME_1)
-                .email(MAIL_1)
-                .birthDate(BIRTH_DATE)
-                .build());
+        User userToUpdate = userRepository.save(user1);
 
         Long updatedUserId = userToUpdate.getId();
 
-        UserWriteDto updateDto = UserWriteDto.builder()
-                .name(NAME_2)
-                .surname(SURNAME_2)
-                .email(MAIL_2)
-                .birthDate(BIRTH_DATE)
-                .build();
-
-        userService.updateUserById(updatedUserId, updateDto);
+        userService.updateUserById(updatedUserId, userWriteDto2);
 
         User updatedUserInDb = userRepository.findById(updatedUserId).orElseThrow();
         Assertions.assertThat(updatedUserInDb.getName()).isEqualTo(NAME_2);
@@ -140,12 +156,7 @@ class UserServiceImplIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void deleteUserById_shouldRemoveUserFromDatabase() {
-        User userToDelete = userRepository.save(User.builder()
-                .name(NAME_1)
-                .surname(SURNAME_1)
-                .email(MAIL_1)
-                .birthDate(BIRTH_DATE)
-                .build());
+        User userToDelete = userRepository.save(user1);
 
         long userId = userToDelete.getId();
         Assertions.assertThat(userRepository.existsById(userId)).isTrue();
@@ -158,30 +169,13 @@ class UserServiceImplIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void updateUserById_shouldThrowException_whenEmailIsNotUnique() {
-        User user1 = User.builder()
-                .email(MAIL_1)
-                .name(NAME_1)
-                .surname(SURNAME_1)
-                .birthDate(BIRTH_DATE)
-                .build();
         userRepository.save(user1);
-        User user2 = User.builder()
-                .email(MAIL_2)
-                .name(NAME_2)
-                .surname(SURNAME_2)
-                .birthDate(BIRTH_DATE)
-                .build();
         User userToUpdate = userRepository.save(user2);
 
-        UserWriteDto updateDto = UserWriteDto.builder()
-                .email(MAIL_1)
-                .name("New Name")
-                .surname("New Surname")
-                .birthDate(BIRTH_DATE)
-                .build();
+
 
         Long id = userToUpdate.getId();
-        assertThrows(EntityIsNotUniqueCustomException.class, () -> userService.updateUserById(id, updateDto));
+        assertThrows(EntityIsNotUniqueCustomException.class, () -> userService.updateUserById(id, userUpdateDto));
     }
 
 
@@ -209,12 +203,7 @@ class UserServiceImplIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void findUserById_shouldUseCache_whenCalledMultipleTimes() {
-        User savedUser = userRepository.save(User.builder()
-                .name(NAME_1)
-                .surname(SURNAME_1)
-                .email(MAIL_1)
-                .birthDate(BIRTH_DATE)
-                .build());
+        User savedUser = userRepository.save(user1);
         Long userId = savedUser.getId();
 
         UserReadDto userFromFirstCall = userService.findUserById(userId);
@@ -231,12 +220,7 @@ class UserServiceImplIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void updateUserById_shouldEvictCache() {
-        User savedUser = userRepository.save(User.builder()
-                .name(NAME_1)
-                .surname(SURNAME_1)
-                .email(MAIL_1)
-                .birthDate(BIRTH_DATE)
-                .build());
+        User savedUser = userRepository.save(user1);
         Long userId = savedUser.getId();
 
         userService.findUserById(userId);
@@ -253,12 +237,7 @@ class UserServiceImplIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void deleteUserById_shouldEvictCache() {
-        User savedUser = userRepository.save(User.builder()
-                .name(NAME_1)
-                .surname(SURNAME_1)
-                .email(MAIL_1)
-                .birthDate(BIRTH_DATE)
-                .build());
+        User savedUser = userRepository.save(user1);
         Long userId = savedUser.getId();
 
         userService.findUserById(userId);
