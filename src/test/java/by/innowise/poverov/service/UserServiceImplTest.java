@@ -58,10 +58,8 @@ class UserServiceImplTest {
 
     @Mock
     private UserRepository userRepository;
-
     @Mock
     private UserMapper userMapper;
-
     @InjectMocks
     private UserServiceImpl userServiceImpl;
 
