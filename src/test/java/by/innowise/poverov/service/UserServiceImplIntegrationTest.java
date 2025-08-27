@@ -211,8 +211,6 @@ class UserServiceImplIntegrationTest extends BaseIntegrationTest {
     }
 
 
-    // ////////////////
-
     @Test
     void findUserById_shouldUseCache_whenCalledMultipleTimes() {
         User savedUser = userRepository.save(User.builder()
@@ -237,7 +235,6 @@ class UserServiceImplIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void updateUserById_shouldEvictCache() {
-        // Arrange
         User savedUser = userRepository.save(User.builder()
                 .name(NAME_1)
                 .surname(SURNAME_1)
@@ -260,7 +257,6 @@ class UserServiceImplIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void deleteUserById_shouldEvictCache() {
-        // Arrange
         User savedUser = userRepository.save(User.builder()
                 .name(NAME_1)
                 .surname(SURNAME_1)
