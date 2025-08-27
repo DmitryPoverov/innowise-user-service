@@ -28,14 +28,13 @@ import java.util.Optional;
 @ExtendWith(MockitoExtension.class)
 class CardServiceImplTest {
 
-    private static final Long USER_ID_1L = 1L;
-    private static final Long CARD_ID_1L = 1L;
+    private static final Long ID_1L = 1L;
     private static final String CARD_NUMBER_1 = "1111222233334444";
     private static final String CARD_HOLDER_1 = "Holder Name";
     private static final LocalDate EXPIRATION_DATE_1 = LocalDate.of(2030, 1, 1);
-
-    private static final Long CARD_ID_2L = 2L;
+    private static final Long ID_2L = 2L;
     private static final String CARD_NUMBER_2 = "5555666677778888";
+    public static final String CACHE_NAME = "redis_cache_for_users";
 
     @Mock
     private CardRepository cardRepository;
@@ -63,7 +62,7 @@ class CardServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        User user = User.builder().id(USER_ID_1L).build();
+        User user = User.builder().id(ID_1L).build();
 
         cardWithoutId = Card.builder()
                 .number(CARD_NUMBER_1)
@@ -73,7 +72,7 @@ class CardServiceImplTest {
                 .build();
 
         cardWithId1 = Card.builder()
-                .id(CARD_ID_1L)
+                .id(ID_1L)
                 .number(CARD_NUMBER_1)
                 .holder(CARD_HOLDER_1)
                 .expirationDate(EXPIRATION_DATE_1)
@@ -81,7 +80,7 @@ class CardServiceImplTest {
                 .build();
 
         cardWithId2 = Card.builder()
-                .id(CARD_ID_2L)
+                .id(ID_2L)
                 .number(CARD_NUMBER_2)
                 .holder(CARD_HOLDER_1)
                 .expirationDate(EXPIRATION_DATE_1)
@@ -92,33 +91,33 @@ class CardServiceImplTest {
                 .number(CARD_NUMBER_1)
                 .holder(CARD_HOLDER_1)
                 .expirationDate(EXPIRATION_DATE_1)
-                .userId(USER_ID_1L)
+                .userId(ID_1L)
                 .build();
 
         cardReadDto1 = CardReadDto.builder()
-                .id(CARD_ID_1L)
+                .id(ID_1L)
                 .number(CARD_NUMBER_1)
                 .holder(CARD_HOLDER_1)
                 .expirationDate(EXPIRATION_DATE_1)
-                .userId(USER_ID_1L)
+                .userId(ID_1L)
                 .build();
 
         cardReadDto2 = CardReadDto.builder()
-                .id(CARD_ID_2L)
+                .id(ID_2L)
                 .number(CARD_NUMBER_2)
                 .holder(CARD_HOLDER_1)
                 .expirationDate(EXPIRATION_DATE_1)
-                .userId(USER_ID_1L)
+                .userId(ID_1L)
                 .build();
 
-        cardIdsList = List.of(CARD_ID_1L, CARD_ID_2L);
+        cardIdsList = List.of(ID_1L, ID_2L);
         cardList = List.of(cardWithId1, cardWithId2);
         cardReadDtoList = List.of(cardReadDto1, cardReadDto2);
     }
 
     @Test
     void saveCard_shouldReturnCardReadDto_whenDataIsValid() {
-        Mockito.when(userRepository.existsById(USER_ID_1L)).thenReturn(true);
+        Mockito.when(userRepository.existsById(ID_1L)).thenReturn(true);
         Mockito.when(cardRepository.existsByNumber(CARD_NUMBER_1)).thenReturn(false);
         Mockito.when(cardMapper.toCard(cardWriteDto)).thenReturn(cardWithoutId);
         Mockito.when(cardRepository.save(cardWithoutId)).thenReturn(cardWithId1);
@@ -127,7 +126,7 @@ class CardServiceImplTest {
         CardReadDto actual = cardServiceImpl.saveCard(cardWriteDto);
 
         Assertions.assertEquals(cardReadDto1, actual);
-        Mockito.verify(userRepository).existsById(USER_ID_1L);
+        Mockito.verify(userRepository).existsById(ID_1L);
         Mockito.verify(cardRepository).existsByNumber(CARD_NUMBER_1);
         Mockito.verify(cardMapper).toCard(cardWriteDto);
         Mockito.verify(cardRepository).save(cardWithoutId);
@@ -137,46 +136,46 @@ class CardServiceImplTest {
 
     @Test
     void saveCard_shouldThrowException_whenUserNotFound() {
-        Mockito.when(userRepository.existsById(USER_ID_1L)).thenReturn(false);
+        Mockito.when(userRepository.existsById(ID_1L)).thenReturn(false);
 
         Assertions.assertThrows(EntityNotFoundCustomException.class, () -> cardServiceImpl.saveCard(cardWriteDto));
 
-        Mockito.verify(userRepository).existsById(USER_ID_1L);
+        Mockito.verify(userRepository).existsById(ID_1L);
         Mockito.verifyNoInteractions(cardRepository, cardMapper);
     }
 
     @Test
     void saveCard_shouldThrowException_whenCardNumberIsNotUnique() {
-        Mockito.when(userRepository.existsById(USER_ID_1L)).thenReturn(true);
+        Mockito.when(userRepository.existsById(ID_1L)).thenReturn(true);
         Mockito.when(cardRepository.existsByNumber(CARD_NUMBER_1)).thenReturn(true);
 
         Assertions.assertThrows(EntityIsNotUniqueCustomException.class, () -> cardServiceImpl.saveCard(cardWriteDto));
 
-        Mockito.verify(userRepository).existsById(USER_ID_1L);
+        Mockito.verify(userRepository).existsById(ID_1L);
         Mockito.verify(cardRepository).existsByNumber(CARD_NUMBER_1);
         Mockito.verifyNoMoreInteractions(cardRepository, cardMapper);
     }
 
     @Test
     void findCardById_shouldReturnCardReadDto_whenCardExists() {
-        Mockito.when(cardRepository.findCardById(CARD_ID_1L)).thenReturn(Optional.of(cardWithId1));
+        Mockito.when(cardRepository.findCardById(ID_1L)).thenReturn(Optional.of(cardWithId1));
         Mockito.when(cardMapper.toCardReadDto(cardWithId1)).thenReturn(cardReadDto1);
 
-        CardReadDto actual = cardServiceImpl.findCardById(CARD_ID_1L);
+        CardReadDto actual = cardServiceImpl.findCardById(ID_1L);
 
         Assertions.assertEquals(cardReadDto1, actual);
-        Mockito.verify(cardRepository).findCardById(CARD_ID_1L);
+        Mockito.verify(cardRepository).findCardById(ID_1L);
         Mockito.verify(cardMapper).toCardReadDto(cardWithId1);
         Mockito.verifyNoMoreInteractions(cardRepository, cardMapper);
     }
 
     @Test
     void findCardById_shouldThrowException_whenCardNotFound() {
-        Mockito.when(cardRepository.findCardById(CARD_ID_1L)).thenReturn(Optional.empty());
+        Mockito.when(cardRepository.findCardById(ID_1L)).thenReturn(Optional.empty());
 
-        Assertions.assertThrows(EntityNotFoundCustomException.class, () -> cardServiceImpl.findCardById(CARD_ID_1L));
+        Assertions.assertThrows(EntityNotFoundCustomException.class, () -> cardServiceImpl.findCardById(ID_1L));
 
-        Mockito.verify(cardRepository).findCardById(CARD_ID_1L);
+        Mockito.verify(cardRepository).findCardById(ID_1L);
         Mockito.verifyNoInteractions(cardMapper);
     }
 
@@ -208,16 +207,16 @@ class CardServiceImplTest {
 
     @Test
     void updateCard_shouldReturnUpdatedCardReadDto_whenDataIsValid() {
-        Mockito.when(userRepository.existsById(USER_ID_1L)).thenReturn(true);//
-        Mockito.when(cardRepository.findCardById(CARD_ID_1L)).thenReturn(Optional.of(cardWithId1));
+        Mockito.when(userRepository.existsById(ID_1L)).thenReturn(true);//
+        Mockito.when(cardRepository.findCardById(ID_1L)).thenReturn(Optional.of(cardWithId1));
         Mockito.when(cardRepository.save(cardWithId1)).thenReturn(cardWithId1);
         Mockito.when(cardMapper.toCardReadDto(cardWithId1)).thenReturn(cardReadDto1);
 
-        CardReadDto actual = cardServiceImpl.updateCard(CARD_ID_1L, cardWriteDto);
+        CardReadDto actual = cardServiceImpl.updateCard(ID_1L, cardWriteDto);
 
         Assertions.assertEquals(cardReadDto1, actual);
-        Mockito.verify(userRepository).existsById(USER_ID_1L);
-        Mockito.verify(cardRepository).findCardById(CARD_ID_1L);
+        Mockito.verify(userRepository).existsById(ID_1L);
+        Mockito.verify(cardRepository).findCardById(ID_1L);
         Mockito.verify(cardMapper).updateCardFromDto(cardWriteDto, cardWithId1);
         Mockito.verify(cardRepository).save(cardWithId1);
         Mockito.verify(cardMapper).toCardReadDto(cardWithId1);
@@ -226,51 +225,51 @@ class CardServiceImplTest {
 
     @Test
     void updateCard_shouldThrowException_whenUserNotFound() {
-        Mockito.when(userRepository.existsById(USER_ID_1L)).thenReturn(false);
+        Mockito.when(userRepository.existsById(ID_1L)).thenReturn(false);
 
-        Assertions.assertThrows(EntityNotFoundCustomException.class, () -> cardServiceImpl.updateCard(CARD_ID_1L, cardWriteDto));
+        Assertions.assertThrows(EntityNotFoundCustomException.class, () -> cardServiceImpl.updateCard(ID_1L, cardWriteDto));
 
-        Mockito.verify(userRepository).existsById(USER_ID_1L);
+        Mockito.verify(userRepository).existsById(ID_1L);
         Mockito.verifyNoInteractions(cardRepository, cardMapper);
     }
 
     @Test
     void updateCard_shouldThrowException_whenCardToUpdateNotFound() {
-        Mockito.when(userRepository.existsById(USER_ID_1L)).thenReturn(true);
-        Mockito.when(cardRepository.findCardById(CARD_ID_1L)).thenReturn(Optional.empty());
+        Mockito.when(userRepository.existsById(ID_1L)).thenReturn(true);
+        Mockito.when(cardRepository.findCardById(ID_1L)).thenReturn(Optional.empty());
 
-        Assertions.assertThrows(EntityNotFoundCustomException.class, () -> cardServiceImpl.updateCard(CARD_ID_1L, cardWriteDto));
+        Assertions.assertThrows(EntityNotFoundCustomException.class, () -> cardServiceImpl.updateCard(ID_1L, cardWriteDto));
 
-        Mockito.verify(userRepository).existsById(USER_ID_1L);
-        Mockito.verify(cardRepository).findCardById(CARD_ID_1L);
+        Mockito.verify(userRepository).existsById(ID_1L);
+        Mockito.verify(cardRepository).findCardById(ID_1L);
         Mockito.verifyNoMoreInteractions(cardRepository, cardMapper);
     }
 
     @Test
     void updateCard_shouldThrowException_whenNewCardNumberIsNotUnique() {
         cardWithId1.setNumber(CARD_NUMBER_2);
-        Mockito.when(userRepository.existsById(USER_ID_1L)).thenReturn(true);
-        Mockito.when(cardRepository.findCardById(CARD_ID_1L)).thenReturn(Optional.of(cardWithId1));
+        Mockito.when(userRepository.existsById(ID_1L)).thenReturn(true);
+        Mockito.when(cardRepository.findCardById(ID_1L)).thenReturn(Optional.of(cardWithId1));
         Mockito.when(cardRepository.existsByNumber(CARD_NUMBER_1)).thenReturn(true);
 
-        Assertions.assertThrows(EntityIsNotUniqueCustomException.class, () -> cardServiceImpl.updateCard(CARD_ID_1L, cardWriteDto));
+        Assertions.assertThrows(EntityIsNotUniqueCustomException.class, () -> cardServiceImpl.updateCard(ID_1L, cardWriteDto));
 
-        Mockito.verify(userRepository).existsById(USER_ID_1L);
-        Mockito.verify(cardRepository).findCardById(CARD_ID_1L);
+        Mockito.verify(userRepository).existsById(ID_1L);
+        Mockito.verify(cardRepository).findCardById(ID_1L);
         Mockito.verify(cardRepository).existsByNumber(CARD_NUMBER_1);
         Mockito.verifyNoMoreInteractions(cardRepository, cardMapper);
     }
 
     @Test
     void deleteCardById_shouldDeleteCardAndEvictCache_whenCardExists() {
-        Mockito.when(cardRepository.findById(CARD_ID_1L)).thenReturn(Optional.of(cardWithId1));
-        Mockito.when(cacheManager.getCache("users")).thenReturn(cache);
+        Mockito.when(cardRepository.findById(ID_1L)).thenReturn(Optional.of(cardWithId1));
+        Mockito.when(cacheManager.getCache(CACHE_NAME)).thenReturn(cache);
 
-        cardServiceImpl.deleteCardById(CARD_ID_1L);
+        cardServiceImpl.deleteCardById(ID_1L);
 
-        Mockito.verify(cardRepository).findById(CARD_ID_1L);
-        Mockito.verify(cacheManager).getCache("users");
-        Mockito.verify(cache).evict(USER_ID_1L);
+        Mockito.verify(cardRepository).findById(ID_1L);
+        Mockito.verify(cacheManager).getCache(CACHE_NAME);
+        Mockito.verify(cache).evict(ID_1L);
         Mockito.verify(cardRepository).delete(cardWithId1);
         Mockito.verifyNoMoreInteractions(cardRepository, cacheManager, cache);
         Mockito.verifyNoInteractions(userRepository, cardMapper);
@@ -278,11 +277,11 @@ class CardServiceImplTest {
 
     @Test
     void deleteCardById_shouldThrowException_whenCardNotFound() {
-        Mockito.when(cardRepository.findById(CARD_ID_1L)).thenReturn(Optional.empty());
+        Mockito.when(cardRepository.findById(ID_1L)).thenReturn(Optional.empty());
 
-        Assertions.assertThrows(EntityNotFoundCustomException.class, () -> cardServiceImpl.deleteCardById(CARD_ID_1L));
+        Assertions.assertThrows(EntityNotFoundCustomException.class, () -> cardServiceImpl.deleteCardById(ID_1L));
 
-        Mockito.verify(cardRepository).findById(CARD_ID_1L);
+        Mockito.verify(cardRepository).findById(ID_1L);
         Mockito.verifyNoInteractions(userRepository, cardMapper, cacheManager);
     }
 }
