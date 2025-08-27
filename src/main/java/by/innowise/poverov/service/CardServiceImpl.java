@@ -74,7 +74,7 @@ public class CardServiceImpl implements CardService {
             String newNumber = cardWriteDto.getNumber();
 
             Card cardFromDB = cardRepository.findCardById(id)
-                    .orElseThrow(() -> new EntityNotFoundCustomException(newNumber));
+                    .orElseThrow(() -> new EntityNotFoundCustomException(id));
 
             if (!Objects.equals(newNumber, cardFromDB.getNumber()) && cardRepository.existsByNumber(newNumber)) {
                 throw new EntityIsNotUniqueCustomException(newNumber);
@@ -94,7 +94,7 @@ public class CardServiceImpl implements CardService {
         Card card = cardRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundCustomException(id));
         Long userId = card.getUser().getId();
-        Objects.requireNonNull(cacheManager.getCache("users")).evict(userId);
+        Objects.requireNonNull(cacheManager.getCache("redis_cache_for_users")).evict(userId);
         cardRepository.delete(card);
     }
 }
