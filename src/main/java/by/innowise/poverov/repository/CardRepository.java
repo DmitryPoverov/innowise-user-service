@@ -19,19 +19,6 @@ import java.util.Optional;
 public interface CardRepository extends JpaRepository<Card, Long> {
 
     /**
-     * {@link JpaRepository} -> {@link CrudRepository} already has a method {@code save(S entity)}.<br><br>
-     * This is a default method that delegates to the {@link #save(Object)} method.
-     * It serves as an explicit alias for creating a card. Saves a given {@link Card} entity.
-     *
-     * @param card the {@code Card} entity to save, must not be {@code null}
-     * @return the saved {@code Card} entity
-     */
-    default Card saveCard(Card card) {
-        return save(card);
-    }
-
-
-    /**
      * {@link JpaRepository} -> {@link CrudRepository} already has such a method {@code findById()}.<br><br>
      * My custom implementation:<br>
      * 1. with JPQL:

@@ -19,19 +19,6 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
 
     /**
-     * {@link JpaRepository}->{@link CrudRepository}) already has a method {@code save(S Object)}. <br> <br>
-     *
-     * This is a default method that delegates to the {@link #save(Object)} method.
-     * It serves as an explicit alias for creating a user. Saves a given {@link User} entity.
-     * @param user the {@code User} entity to save, must not be {@code null}
-     * @return the saved {@code User} entity
-     */
-     default User saveUser(User user) {
-         return save(user);
-     }
-
-
-    /**
      * {@link JpaRepository}->{@link CrudRepository} already has such a method {@code findById()}.<br><br>
      * My custom implementation: <br>
      * 1. with JPQL:
